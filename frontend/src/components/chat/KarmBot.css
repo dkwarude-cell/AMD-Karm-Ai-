@@ -3,11 +3,11 @@
   position: fixed;
   bottom: 80px;
   right: 16px;
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  border: none;
+  background: radial-gradient(circle at 35% 35%, #1E1E35 0%, #0A0A12 100%);
+  border: 1.5px solid rgba(123, 97, 255, 0.3);
   color: #fff;
   font-size: 22px;
   cursor: pointer;
@@ -15,10 +15,48 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(123, 97, 255, 0.4);
-  transition: transform 0.2s ease;
+  box-shadow:
+    0 4px 24px rgba(123, 97, 255, 0.3),
+    0 0 0 1px rgba(123, 97, 255, 0.1),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
-.karmbot-fab:hover { transform: scale(1.08); }
+.karmbot-fab:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 6px 32px rgba(123, 97, 255, 0.45),
+    0 0 0 1px rgba(123, 97, 255, 0.25),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* Pulse ring around FAB */
+.karmbot-fab::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(123, 97, 255, 0.25),
+    rgba(0, 229, 204, 0.2),
+    transparent
+  );
+  animation: karmFabSpin 4s linear infinite;
+  z-index: -1;
+}
+.karmbot-fab::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: #0A0A12;
+  z-index: -1;
+}
+
+@keyframes karmFabSpin {
+  to { transform: rotate(360deg); }
+}
 
 .karmbot-panel {
   position: fixed;
@@ -35,7 +73,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.08);
 }
 
 .karmbot-header {
@@ -54,6 +92,38 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.karmbot-header__badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(123,97,255,0.2), rgba(0,229,204,0.15));
+  color: var(--accent-secondary);
+  border: 1px solid rgba(0, 229, 204, 0.2);
+}
+
+/* ── KarmBot Logo animations ── */
+.karmbot-logo {
+  flex-shrink: 0;
+}
+
+.karmbot-logo__dot {
+  animation: karmDotFloat 3s ease-in-out infinite;
+}
+.karmbot-logo__dot--1 { animation-delay: 0s; }
+.karmbot-logo__dot--2 { animation-delay: 1s; }
+.karmbot-logo__dot--3 { animation-delay: 2s; }
+
+@keyframes karmDotFloat {
+  0%, 100% { opacity: 0.5; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-2px); }
+}
+
+.karmbot-fab-logo {
+  filter: drop-shadow(0 0 6px rgba(123, 97, 255, 0.4));
 }
 
 .karmbot-header__close {
@@ -113,7 +183,7 @@
 .karmbot-result-card {
   margin-top: 6px;
   padding: 8px 10px;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.04);
   border-radius: 10px;
   font-size: 12px;
 }

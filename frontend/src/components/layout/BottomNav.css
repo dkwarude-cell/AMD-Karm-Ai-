@@ -1,50 +1,156 @@
+/* ── Bottom Navigation ─────────────────────────────── */
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--bg-elevated);
-  border-top: var(--border-default);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 0;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  height: 68px;
+  padding-bottom: max(4px, env(safe-area-inset-bottom));
   z-index: 500;
+  /* No direct background — handled by .bottom-nav__glass */
 }
 
+/* Glassmorphism backdrop */
+.bottom-nav__glass {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 18, 0.72);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border-top: 1px solid rgba(123, 97, 255, 0.1);
+  pointer-events: none;
+}
+
+/* Top-edge glow line */
+.bottom-nav__glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(123, 97, 255, 0.35) 30%,
+    rgba(0, 229, 204, 0.25) 70%,
+    transparent
+  );
+}
+
+/* Sliding pill background behind active tab */
+.bottom-nav__pill {
+  position: absolute;
+  top: 8px;
+  height: calc(100% - 16px - max(4px, env(safe-area-inset-bottom)));
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(123, 97, 255, 0.14) 0%,
+    rgba(0, 229, 204, 0.08) 100%
+  );
+  border: 1px solid rgba(123, 97, 255, 0.12);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Tab ── */
 .bottom-nav__tab {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
-  padding: 6px 12px;
+  padding: 8px 14px;
   text-decoration: none;
-  position: relative;
-  transition: all var(--transition-fast);
-}
-
-.bottom-nav__icon {
-  font-size: 20px;
-  line-height: 1;
-}
-
-.bottom-nav__label {
-  font-size: 10px;
-  font-weight: 500;
+  z-index: 2;
   color: var(--text-muted);
-  transition: color var(--transition-fast);
+  transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  outline: none;
 }
 
-.bottom-nav__tab--active .bottom-nav__label {
+.bottom-nav__tab:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.bottom-nav__tab--active {
   color: var(--accent-primary);
 }
 
-.bottom-nav__indicator {
+/* Scale-down on press */
+.bottom-nav__tab:active {
+  transform: scale(0.92);
+}
+
+/* ── Icon wrapper ── */
+.bottom-nav__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+/* ── Label (only shown when active, animated via framer) ── */
+.bottom-nav__label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--accent-primary);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* ── Active glow behind icon ── */
+.bottom-nav__glow {
   position: absolute;
-  bottom: 0;
-  width: 4px;
-  height: 4px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--accent-primary);
+  background: radial-gradient(
+    circle,
+    rgba(123, 97, 255, 0.25) 0%,
+    rgba(123, 97, 255, 0.06) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ── Responsive: wider screens get more padding ── */
+@media (min-width: 640px) {
+  .bottom-nav {
+    max-width: 480px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 12px;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .bottom-nav__glass {
+    border-radius: 20px;
+    border: 1px solid rgba(123, 97, 255, 0.12);
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav__tab,
+  .bottom-nav__pill {
+    transition: none !important;
+  }
 }

@@ -116,7 +116,7 @@
 
 .hero-drift-card__divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.06);
   margin: var(--space-md) 0;
 }
 

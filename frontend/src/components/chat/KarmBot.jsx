@@ -4,6 +4,53 @@ import useDriftStore from '../../store/useDriftStore';
 import { chatAsk } from '../../lib/api';
 import './KarmBot.css';
 
+/* ── KarmBot Logo ── Animated SVG brand icon ── */
+function KarmLogo({ size = 28, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`karmbot-logo ${className}`}
+    >
+      <defs>
+        <linearGradient id="karm-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#7B61FF" />
+          <stop offset="100%" stopColor="#00E5CC" />
+        </linearGradient>
+        <linearGradient id="karm-inner" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#B8A8FF" />
+          <stop offset="100%" stopColor="#4FFFB0" />
+        </linearGradient>
+        <filter id="karm-glow">
+          <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+      {/* Outer ring */}
+      <circle cx="20" cy="20" r="18" stroke="url(#karm-grad)" strokeWidth="2" fill="none" opacity="0.5" />
+      {/* Core orb */}
+      <circle cx="20" cy="20" r="12" fill="url(#karm-grad)" opacity="0.15" />
+      <circle cx="20" cy="20" r="12" stroke="url(#karm-grad)" strokeWidth="1.5" fill="none" />
+      {/* K shape — stylized */}
+      <path
+        d="M16 12v16M16 20l8-8M16 20l8 8"
+        stroke="url(#karm-inner)"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        filter="url(#karm-glow)"
+      />
+      {/* Orbiting dots — neural sparkle */}
+      <circle cx="30" cy="12" r="1.5" fill="#00E5CC" className="karmbot-logo__dot karmbot-logo__dot--1" />
+      <circle cx="10" cy="28" r="1.2" fill="#7B61FF" className="karmbot-logo__dot karmbot-logo__dot--2" />
+      <circle cx="32" cy="26" r="1" fill="#FFD166" className="karmbot-logo__dot karmbot-logo__dot--3" />
+    </svg>
+  );
+}
+
 /**
  * KarmBot — AI-powered campus discovery assistant.
  * Calls backend /api/chat/ask which uses OpenRouter AI
@@ -97,7 +144,7 @@ export default function KarmBot() {
             transition={{ type: 'spring', damping: 20 }}
             title="KarmBot — AI Campus Assistant"
           >
-            🤖
+            <KarmLogo size={30} className="karmbot-fab-logo" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -115,10 +162,8 @@ export default function KarmBot() {
           >
             <div className="karmbot-header">
               <div className="karmbot-header__title">
-                <span>🤖</span> KarmBot
-                <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
-                  AI-powered assistant
-                </span>
+                <KarmLogo size={22} /> KarmBot
+                <span className="karmbot-header__badge">AI</span>
               </div>
               <button className="karmbot-header__close" onClick={() => setOpen(false)}>✕</button>
             </div>

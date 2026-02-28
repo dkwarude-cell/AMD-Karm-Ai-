@@ -35,5 +35,5 @@
 
 .fingerprint-radar__legend-dot--potential {
   background: transparent;
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border: 2px dashed rgba(0, 0, 0, 0.15);
 }
