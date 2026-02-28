@@ -26,6 +26,7 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [editTimeBudget, setEditTimeBudget] = useState(student?.time_budget_minutes ?? 45);
   const [editFreeOnly, setEditFreeOnly] = useState(student?.free_only ?? false);
+  const [editAccessibility, setEditAccessibility] = useState(student?.accessibility ?? []);
 
   const meaningfulDrifts = driftHistory.filter(
     (d) => d.outcome && d.outcome.was_interesting
@@ -35,7 +36,8 @@ export default function Profile() {
     const updated = {
       ...student,
       time_budget_minutes: editTimeBudget,
-      free_only: editFreeOnly
+      free_only: editFreeOnly,
+      accessibility: editAccessibility
     };
     setStudent(updated);
     setEditing(false);
@@ -43,7 +45,8 @@ export default function Profile() {
     try {
       await updateProfile(student.id, {
         time_budget_minutes: editTimeBudget,
-        free_only: editFreeOnly
+        free_only: editFreeOnly,
+        accessibility: editAccessibility
       });
     } catch (err) {
       console.warn('Profile update API failed:', err.message);
@@ -198,6 +201,28 @@ export default function Profile() {
                   }} />
                 </button>
               </div>
+              <div className="profile-pref-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
+                <span>♿ Accessibility</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {[
+                    { id: 'wheelchair', label: '♿ Wheelchair' },
+                    { id: 'visual', label: '👁️ Visual aids' },
+                    { id: 'hearing', label: '🦻 Hearing' },
+                    { id: 'sensory', label: '🧘 Sensory-friendly' },
+                  ].map((opt) => (
+                    <Chip
+                      key={opt.id}
+                      label={opt.label}
+                      selected={editAccessibility.includes(opt.id)}
+                      onClick={() => {
+                        setEditAccessibility((prev) =>
+                          prev.includes(opt.id) ? prev.filter(a => a !== opt.id) : [...prev, opt.id]
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                 <Button variant="primary" onClick={handleSavePrefs}>Save</Button>
                 <Button variant="ghost" onClick={() => setEditing(false)}>Cancel</Button>
@@ -227,6 +252,14 @@ export default function Profile() {
                 <span>🕐 Best Time</span>
                 <span className="profile-pref-value">
                   {fingerprint?.best_time_of_day || 'Lunch'}
+                </span>
+              </div>
+              <div className="profile-pref-row">
+                <span>♿ Accessibility</span>
+                <span className="profile-pref-value">
+                  {student?.accessibility?.length > 0
+                    ? student.accessibility.map(a => a === 'wheelchair' ? '♿' : a === 'visual' ? '👁️' : a === 'hearing' ? '🦻' : '🧘').join(' ')
+                    : 'None set'}
                 </span>
               </div>
             </>

@@ -13,6 +13,7 @@ class StudentProfile(BaseModel):
     interests: List[str] = Field(max_length=8, default_factory=list)
     time_budget_minutes: int = 45
     free_only: bool = False
+    accessibility: List[str] = Field(default_factory=list)  # wheelchair, visual, hearing, sensory
     created_at: datetime = Field(default_factory=datetime.utcnow)
     drift_score: int = 0
     drift_streak: int = 0
@@ -54,6 +55,7 @@ class StudentProfileCreate(BaseModel):
     interests: List[str] = Field(max_length=8, default_factory=list)
     time_budget_minutes: int = 45
     free_only: bool = False
+    accessibility: List[str] = Field(default_factory=list)
 
 
 class StudentProfileUpdate(BaseModel):
@@ -64,3 +66,4 @@ class StudentProfileUpdate(BaseModel):
     interests: Optional[List[str]] = None
     time_budget_minutes: Optional[int] = None
     free_only: Optional[bool] = None
+    accessibility: Optional[List[str]] = None

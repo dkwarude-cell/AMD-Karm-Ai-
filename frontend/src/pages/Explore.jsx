@@ -12,13 +12,88 @@ import './Explore.css';
 
 const EVENT_FILTERS = ['All', 'Talk', 'Workshop', 'Performance', 'Social', 'Sports'];
 
+/* ── Transparent Recommender: compute personalized "Why this?" for each event ── */
+function computeEventRelevance(event, student, attractor) {
+  if (!student) return { score: 50, reasons: ['Explore something new!'] };
+
+  const reasons = [];
+  let score = 40; // base
+
+  // 1. Department gap — event is from a dept student hasn't visited
+  const visited = new Set((attractor?.departments_visited || []).map(d => d.toLowerCase()));
+  if (!visited.has(event.department.toLowerCase())) {
+    score += 20;
+    reasons.push(`Expands your bubble — you haven't explored ${event.department} yet`);
+  }
+
+  // 2. Skill/interest match — event attendees overlap with student interests
+  const interests = new Set((student.interests || []).map(i => i.toLowerCase()));
+  const skills = new Set((student.skills || []).map(s => s.toLowerCase()));
+  const attendeeDepts = (event.expected_attendees || []).map(a => a.toLowerCase());
+  const interestMatch = attendeeDepts.filter(a => interests.has(a) || skills.has(a));
+  if (interestMatch.length > 0) {
+    score += 15;
+    reasons.push(`Matches your interest in ${interestMatch.join(', ')}`);
+  }
+
+  // 3. Cross-departmental collision potential
+  const crossDeptCount = attendeeDepts.filter(a => !visited.has(a)).length;
+  if (crossDeptCount >= 2) {
+    score += 10;
+    reasons.push(`${crossDeptCount} departments you've never met — high collision potential`);
+  }
+
+  // 4. Time/budget fit
+  if (event.is_free && student.free_only) {
+    score += 5;
+    reasons.push('Free — fits your budget preference');
+  }
+  if (event.duration_minutes <= (student.time_budget_minutes || 45)) {
+    score += 5;
+    reasons.push(`${event.duration_minutes} min — fits your time budget`);
+  } else {
+    reasons.push(`Heads up: ${event.duration_minutes} min exceeds your ${student.time_budget_minutes || 45} min budget`);
+  }
+
+  // 5. Discovery slot bonus
+  if (event.discovery_slot) {
+    score += 5;
+    reasons.push('Has a Discovery Slot — designed for cross-dept interaction');
+  }
+
+  return { score: Math.min(score, 100), reasons };
+}
+
+function computeSlotRelevance(slot, student) {
+  if (!student) return { score: 50, reasons: ['Open to all!'] };
+  const reasons = [];
+  let score = 45;
+  const interests = new Set((student.interests || []).map(i => i.toLowerCase()));
+  const skills = new Set((student.skills || []).map(s => s.toLowerCase()));
+  const tags = (slot.tags || []).map(t => t.toLowerCase());
+  const tagMatch = tags.filter(t => interests.has(t) || skills.has(t));
+  if (tagMatch.length > 0) {
+    score += 20;
+    reasons.push(`Matches your interest in ${tagMatch.join(', ')}`);
+  }
+  if (slot.description?.toLowerCase().includes('open to all') || slot.description?.toLowerCase().includes('no experience')) {
+    score += 10;
+    reasons.push('Beginner-friendly — no experience needed');
+  }
+  if (tags.some(t => ['creative', 'social', 'speaking'].includes(t))) {
+    score += 10;
+    reasons.push('Builds cross-departmental skills');
+  }
+  return { score: Math.min(score, 100), reasons };
+}
+
 export default function Explore() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [events, setEvents] = useState(MOCK_EVENTS);
   const [slots, setSlots] = useState(MOCK_DISCOVERY_SLOTS);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [bookedSlots, setBookedSlots] = useState(new Set());
-  const { showToast, toastMessage } = useDriftStore();
+  const { student, attractor, showToast, toastMessage } = useDriftStore();
 
   useEffect(() => {
     // Try API, fallback to mock
@@ -70,6 +145,61 @@ export default function Explore() {
         <p className="explore-header__sub">Events, discovery slots, and collision zones</p>
       </div>
 
+      {/* ── Smart Day Planner (Criterion 3: balances time, cost, accessibility, interests) ── */}
+      <Card className="explore-planner">
+        <div className="explore-planner__header">
+          <h3 className="explore-planner__title">🗓️ Smart Day Planner</h3>
+          <span className="explore-planner__sub">Balanced for time, cost & accessibility</span>
+        </div>
+        {(() => {
+          const timeBudget = student?.time_budget_minutes || 45;
+          const freeOnly = student?.free_only ?? false;
+          const accessNeeds = student?.accessibility || [];
+          let plannable = events
+            .filter(e => !freeOnly || e.is_free)
+            .filter(e => e.duration_minutes <= timeBudget)
+            .slice(0, 3);
+          const totalTime = plannable.reduce((s, e) => s + e.duration_minutes, 0);
+          const allFree = plannable.every(e => e.is_free);
+          return (
+            <div className="explore-planner__body">
+              <div className="explore-planner__constraints">
+                <span>⏰ {timeBudget || '∞'} min budget</span>
+                <span>💰 {freeOnly ? 'Free only' : 'Any cost'}</span>
+                {accessNeeds.length > 0 && (
+                  <span>♿ {accessNeeds.map(a => a === 'wheelchair' ? 'Wheelchair' : a === 'visual' ? 'Visual aids' : a === 'hearing' ? 'Hearing' : 'Sensory').join(', ')}</span>
+                )}
+              </div>
+              {plannable.length > 0 ? (
+                <>
+                  <div className="explore-planner__timeline">
+                    {plannable.map((evt, idx) => (
+                      <div key={evt.id} className="explore-planner__item" onClick={() => setSelectedEvent(evt)}>
+                        <div className="explore-planner__item-dot" />
+                        <div className="explore-planner__item-content">
+                          <span className="explore-planner__item-title">{evt.title}</span>
+                          <span className="explore-planner__item-meta">
+                            {evt.duration_minutes}min • {evt.department} • {evt.is_free ? 'Free' : 'Paid'}
+                            {accessNeeds.includes('wheelchair') ? ' • ♿ Accessible' : ''}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="explore-planner__summary">
+                    📊 {plannable.length} activities • {totalTime} min total • {allFree ? 'All free' : 'Mixed cost'}
+                  </div>
+                </>
+              ) : (
+                <p style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+                  No activities fit your current constraints. Try adjusting your time budget in Profile.
+                </p>
+              )}
+            </div>
+          );
+        })()}
+      </Card>
+
       {/* Event Filters */}
       <div className="explore-filters">
         {EVENT_FILTERS.map((f) => (
@@ -85,7 +215,9 @@ export default function Explore() {
       {/* Events Section */}
       <h2 className="explore-section-title">Upcoming Events</h2>
       <div className="explore-events">
-        {filteredEvents.map((event, i) => (
+        {filteredEvents.map((event, i) => {
+          const relevance = computeEventRelevance(event, student, attractor);
+          return (
           <motion.div
             key={event.id}
             initial={{ opacity: 0, y: 16 }}
@@ -95,9 +227,19 @@ export default function Explore() {
             <Card className="explore-event-card" onClick={() => setSelectedEvent(event)} style={{ cursor: 'pointer' }}>
               <div className="explore-event-card__header">
                 <h3 className="explore-event-card__title">{event.title}</h3>
-                {event.is_free && (
-                  <Tag className="explore-event-card__free">Free</Tag>
-                )}
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span className="explore-relevance-badge" title="Personalized match score">
+                    {relevance.score}% match
+                  </span>
+                  {event.is_free && (
+                    <Tag className="explore-event-card__free">Free</Tag>
+                  )}
+                </div>
+              </div>
+              {/* Transparent "Why this?" */}
+              <div className="explore-why-this">
+                <span className="explore-why-this__icon">💡</span>
+                <span className="explore-why-this__text">{relevance.reasons[0]}</span>
               </div>
               <div className="explore-event-card__details">
                 <span>🏛️ {event.department}</span>
@@ -118,7 +260,8 @@ export default function Explore() {
               )}
             </Card>
           </motion.div>
-        ))}
+          );
+        })}
         {filteredEvents.length === 0 && (
           <div className="explore-empty">
             No events in this category right now. Check back later — the campus is always moving.
@@ -130,7 +273,9 @@ export default function Explore() {
       <h2 className="explore-section-title">Discovery Slots</h2>
       <p className="explore-section-sub">Open invitations from clubs and organizers</p>
       <div className="explore-slots">
-        {slots.map((slot, i) => (
+        {slots.map((slot, i) => {
+          const slotRelevance = computeSlotRelevance(slot, student);
+          return (
           <motion.div
             key={slot.id}
             initial={{ opacity: 0, y: 16 }}
@@ -138,7 +283,14 @@ export default function Explore() {
             transition={{ delay: 0.3 + i * 0.1 }}
           >
             <Card className="explore-slot-card">
-              <h3 className="explore-slot-card__name">{slot.name}</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <h3 className="explore-slot-card__name">{slot.name}</h3>
+                <span className="explore-relevance-badge">{slotRelevance.score}% match</span>
+              </div>
+              <div className="explore-why-this">
+                <span className="explore-why-this__icon">💡</span>
+                <span className="explore-why-this__text">{slotRelevance.reasons[0]}</span>
+              </div>
               <p className="explore-slot-card__desc">{slot.description}</p>
               <div className="explore-slot-card__meta">
                 <span>📍 {slot.location}</span>
@@ -159,16 +311,33 @@ export default function Explore() {
               )}
             </Card>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Event Detail Modal */}
       <Modal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title={selectedEvent?.title || ''}>
-        {selectedEvent && (
+        {selectedEvent && (() => {
+          const rel = computeEventRelevance(selectedEvent, student, attractor);
+          return (
           <div className="explore-event-detail">
             <p style={{ color: 'var(--text-secondary)', marginBottom: 12 }}>
               {selectedEvent.type} • {selectedEvent.department}
             </p>
+
+            {/* Transparent Recommender — full "Why this event?" */}
+            <div className="explore-why-detail">
+              <div className="explore-why-detail__header">
+                <span>💡 Why this event?</span>
+                <span className="explore-relevance-badge explore-relevance-badge--lg">{rel.score}% match</span>
+              </div>
+              <ul className="explore-why-detail__list">
+                {rel.reasons.map((r, idx) => (
+                  <li key={idx}>{r}</li>
+                ))}
+              </ul>
+            </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
               <span>📍 {selectedEvent.location}</span>
               <span>🕐 {formatTime(selectedEvent.start_time)} • {selectedEvent.duration_minutes} min</span>
@@ -186,7 +355,8 @@ export default function Explore() {
               </div>
             )}
           </div>
-        )}
+          );
+        })()}
       </Modal>
     </div>
   );

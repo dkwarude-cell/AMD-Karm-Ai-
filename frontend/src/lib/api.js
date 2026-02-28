@@ -54,4 +54,8 @@ export const getActiveSlots = () =>
 export const createSlot = (slotData) =>
   api.post('/api/discovery-slots/create', slotData);
 
+// Chat assistant
+export const chatAsk = (query, studentId) =>
+  api.post('/api/chat/ask', { query, student_id: studentId });
+
 export default api;

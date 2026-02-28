@@ -5,6 +5,7 @@ const tabs = [
   { path: '/', icon: '🌀', label: 'Drift' },
   { path: '/bubble', icon: '📡', label: 'Bubble' },
   { path: '/explore', icon: '🔍', label: 'Explore' },
+  { path: '/create', icon: '🎨', label: 'Create' },
   { path: '/history', icon: '↩', label: 'History' },
   { path: '/profile', icon: '👤', label: 'Profile' }
 ];

@@ -140,3 +140,100 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* ── Anti-Bubble Feedback Section ── */
+.bubble-feedback {
+  margin-bottom: var(--space-xl);
+  padding: 18px;
+  border: 1px solid rgba(123, 97, 255, 0.15);
+}
+
+.bubble-feedback__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.bubble-feedback__sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.bubble-feedback__metric {
+  margin-bottom: 14px;
+}
+
+.bubble-feedback__metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.bubble-feedback__metric-value {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.bubble-feedback__bar {
+  height: 6px;
+  background: var(--surface-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bubble-feedback__bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  transition: width 1s ease;
+}
+
+.bubble-feedback__peer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 214, 102, 0.06);
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.bubble-feedback__peer-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.bubble-feedback__peer-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.bubble-feedback__peer-text strong {
+  color: var(--accent-gold);
+}
+
+.bubble-feedback__risk {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bubble-feedback__risk-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bubble-feedback__nudges {
+  padding: 8px 12px;
+  background: rgba(79, 255, 176, 0.05);
+  border-radius: 8px;
+}

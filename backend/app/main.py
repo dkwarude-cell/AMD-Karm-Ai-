@@ -5,7 +5,7 @@ Structured Serendipity Engine for College Students
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.routes import drift, profile, bubble, events, discovery_slots
+from .api.routes import drift, profile, bubble, events, discovery_slots, chat
 
 app = FastAPI(
     title="Karm AI API",
@@ -28,6 +28,7 @@ app.include_router(profile.router, prefix="/api")
 app.include_router(bubble.router, prefix="/api")
 app.include_router(events.router, prefix="/api")
 app.include_router(discovery_slots.router, prefix="/api")
+app.include_router(chat.router, prefix="/api")
 
 
 @app.get("/")

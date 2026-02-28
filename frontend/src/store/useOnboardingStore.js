@@ -13,6 +13,7 @@ const useOnboardingStore = create(
       interests: [],
       timeBudget: null,
       freeOnly: false,
+      accessibility: [], // wheelchair, visual, hearing, sensory-friendly
       completed: false,
 
       setStep: (step) => set({ step }),
@@ -45,6 +46,15 @@ const useOnboardingStore = create(
 
       setTimeBudget: (timeBudget) => set({ timeBudget }),
       setFreeOnly: (freeOnly) => set({ freeOnly }),
+      setAccessibility: (accessibility) => set({ accessibility }),
+      toggleAccessibility: (opt) => {
+        const { accessibility } = get();
+        if (accessibility.includes(opt)) {
+          set({ accessibility: accessibility.filter((a) => a !== opt) });
+        } else {
+          set({ accessibility: [...accessibility, opt] });
+        }
+      },
       setCompleted: (completed) => set({ completed }),
 
       isStepComplete: (stepNum) => {
@@ -64,7 +74,8 @@ const useOnboardingStore = create(
 
       reset: () => set({
         step: 0, direction: 1, department: '', year: null, name: '',
-        skills: [], interests: [], timeBudget: null, freeOnly: false, completed: false
+        skills: [], interests: [], timeBudget: null, freeOnly: false,
+        accessibility: [], completed: false
       })
     }),
     {

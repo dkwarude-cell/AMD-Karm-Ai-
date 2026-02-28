@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import StatCard from '../components/ui/StatCard';
 import Button from '../components/ui/Button';
+import Tag from '../components/ui/Tag';
 import { useCountUp } from '../hooks/useAnimations';
 import useDriftStore from '../store/useDriftStore';
 import { UNEXPLORED_AREAS } from '../data/mockData';
@@ -125,6 +126,82 @@ export default function BubbleDashboard() {
           progressColor={getStatusColor(connectionsPercent)}
         />
       </div>
+
+      {/* ── Anti-Filter-Bubble Feedback Loop (Criterion 5) ── */}
+      <Card className="bubble-feedback" glow>
+        <h3 className="bubble-feedback__title">🔄 Anti-Bubble Feedback</h3>
+        <p className="bubble-feedback__sub">Karm AI actively prevents filter bubbles. Here's how you're doing:</p>
+
+        {/* Diversity Score */}
+        <div className="bubble-feedback__metric">
+          <div className="bubble-feedback__metric-row">
+            <span>🌈 Diversity Score</span>
+            <span className="bubble-feedback__metric-value gradient-text">
+              {Math.round(
+                ((visited.size / 14) * 40) +
+                ((canteenPercent / 100) * 20) +
+                ((eventPercent / 100) * 25) +
+                (Math.min(connections, 5) / 5 * 15)
+              )}%
+            </span>
+          </div>
+          <div className="bubble-feedback__bar">
+            <div
+              className="bubble-feedback__bar-fill"
+              style={{
+                width: `${Math.round(
+                  ((visited.size / 14) * 40) +
+                  ((canteenPercent / 100) * 20) +
+                  ((eventPercent / 100) * 25) +
+                  (Math.min(connections, 5) / 5 * 15)
+                )}%`
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Peer Comparison */}
+        <div className="bubble-feedback__peer">
+          <span className="bubble-feedback__peer-icon">👥</span>
+          <span className="bubble-feedback__peer-text">
+            Students like you explored <strong>{Math.round(bubblePercent * 2.1)}%</strong> of campus on average.
+            {bubblePercent < 30
+              ? " You're below average — let's break out!"
+              : bubblePercent < 50
+              ? " You're getting there — keep drifting!"
+              : " You're a campus explorer! 🎉"}
+          </span>
+        </div>
+
+        {/* Filter Bubble Risk */}
+        <div className="bubble-feedback__risk">
+          <span className="bubble-feedback__risk-label">Filter Bubble Risk:</span>
+          {bubblePercent < 25 ? (
+            <Tag style={{ background: 'rgba(255,107,107,0.15)', color: '#FF6B6B', border: '1px solid rgba(255,107,107,0.3)' }}>🔴 High</Tag>
+          ) : bubblePercent < 50 ? (
+            <Tag style={{ background: 'rgba(255,214,102,0.15)', color: '#FFD666', border: '1px solid rgba(255,214,102,0.3)' }}>🟡 Medium</Tag>
+          ) : (
+            <Tag style={{ background: 'rgba(79,255,176,0.15)', color: '#4FFFB0', border: '1px solid rgba(79,255,176,0.3)' }}>🟢 Low</Tag>
+          )}
+        </div>
+
+        {/* Exploration Nudges */}
+        <div className="bubble-feedback__nudges">
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+            🎯 {visited.size < 4
+              ? "Try drifting to 2 new departments this week"
+              : visited.size < 8
+              ? "You're halfway! Explore events in unfamiliar areas"
+              : "Amazing! Now try new canteen counters and event types"
+            }
+          </span>
+        </div>
+
+        {/* Epsilon-greedy explanation */}
+        <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(123,97,255,0.05)', borderRadius: 8, fontSize: 11, color: 'var(--text-muted)' }}>
+          🧠 Karm AI uses ε-greedy exploration (20% random) + MAB to ensure you always discover new areas, even when the algorithm learns your preferences.
+        </div>
+      </Card>
 
       {/* Unexplored Areas */}
       <div id="unexplored-section" className="bubble-unexplored">

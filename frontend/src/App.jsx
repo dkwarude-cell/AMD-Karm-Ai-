@@ -2,11 +2,13 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-route
 import { AnimatePresence, motion } from 'framer-motion';
 import React from 'react';
 import BottomNav from './components/layout/BottomNav';
+import KarmBot from './components/chat/KarmBot';
 import Home from './pages/Home';
 import BubbleDashboard from './pages/BubbleDashboard';
 import DriftHistory from './pages/DriftHistory';
 import Explore from './pages/Explore';
 import Profile from './pages/Profile';
+import CreatorStudio from './pages/CreatorStudio';
 import Onboarding from './pages/Onboarding';
 import useOnboardingStore from './store/useOnboardingStore';
 import './styles/global.css';
@@ -71,6 +73,7 @@ function AnimatedRoutes() {
         <Route path="/bubble" element={<RequireOnboarding><PageWrap><BubbleDashboard /></PageWrap></RequireOnboarding>} />
         <Route path="/history" element={<RequireOnboarding><PageWrap><DriftHistory /></PageWrap></RequireOnboarding>} />
         <Route path="/explore" element={<RequireOnboarding><PageWrap><Explore /></PageWrap></RequireOnboarding>} />
+        <Route path="/create" element={<RequireOnboarding><PageWrap><CreatorStudio /></PageWrap></RequireOnboarding>} />
         <Route path="/profile" element={<RequireOnboarding><PageWrap><Profile /></PageWrap></RequireOnboarding>} />
       </Routes>
     </AnimatePresence>
@@ -83,6 +86,7 @@ function App() {
       <BrowserRouter>
         <div className="app-shell">
           <AnimatedRoutes />
+          <KarmBot />
           <BottomNav />
         </div>
       </BrowserRouter>

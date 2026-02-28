@@ -34,6 +34,7 @@ export default function Onboarding() {
     interests, addInterest, removeInterest,
     timeBudget, setTimeBudget,
     freeOnly, setFreeOnly,
+    accessibility, toggleAccessibility,
     isReadyToSubmit, setCompleted
   } = useOnboardingStore();
 
@@ -62,6 +63,7 @@ export default function Onboarding() {
       interests,
       time_budget_minutes: timeBudget || 45,
       free_only: freeOnly,
+      accessibility: accessibility || [],
       created_at: new Date().toISOString(),
       drift_score: 0,
       drift_streak: 0
@@ -381,6 +383,27 @@ export default function Onboarding() {
                 >
                   <div className="setup-toggle__knob" />
                 </button>
+              </div>
+            </div>
+
+            {/* Accessibility Needs */}
+            <div className="setup-section">
+              <label className="setup-label">Accessibility needs (optional)</label>
+              <p className="setup-toggle-sub">We'll adapt routes & venues to be accessible for you</p>
+              <div className="setup-chips-grid" style={{ marginTop: 8 }}>
+                {[
+                  { id: 'wheelchair', label: '♿ Wheelchair access' },
+                  { id: 'visual', label: '👁️ Visual aids' },
+                  { id: 'hearing', label: '🦻 Hearing support' },
+                  { id: 'sensory', label: '🧘 Sensory-friendly' },
+                ].map((opt) => (
+                  <Chip
+                    key={opt.id}
+                    label={opt.label}
+                    selected={accessibility.includes(opt.id)}
+                    onClick={() => toggleAccessibility(opt.id)}
+                  />
+                ))}
               </div>
             </div>
 
