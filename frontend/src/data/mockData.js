@@ -303,6 +303,71 @@ export const MOCK_EVENTS = [
     expected_attendees: ['Design', 'CS', 'Arts', 'Architecture'],
     discovery_slot: false,
     accessibility: ['wheelchair', 'ramp', 'sensory_friendly']
+  },
+  {
+    id: 'evt-007',
+    title: 'AI Music Jam — Neural Beats',
+    department: 'Music',
+    type: 'workshop',
+    location: 'Music Department Hall',
+    start_time: '2026-02-28T15:00:00Z',
+    duration_minutes: 45,
+    is_free: true,
+    expected_attendees: ['Music', 'CS', 'AI'],
+    discovery_slot: true,
+    accessibility: ['wheelchair', 'elevator', 'hearing_loop']
+  },
+  {
+    id: 'evt-008',
+    title: 'Photography Walk — Campus Golden Hour',
+    department: 'Arts',
+    type: 'social',
+    location: 'Architecture Building, Ground Floor',
+    start_time: '2026-02-28T16:30:00Z',
+    duration_minutes: 30,
+    is_free: true,
+    expected_attendees: ['Arts', 'Photography', 'Design'],
+    discovery_slot: true,
+    accessibility: ['wheelchair', 'ramp', 'sensory_friendly']
+  },
+  {
+    id: 'evt-009',
+    title: 'Startup Coffee Chat',
+    department: 'Business',
+    type: 'social',
+    location: 'Entrepreneurship Cell',
+    start_time: '2026-02-28T10:00:00Z',
+    duration_minutes: 30,
+    is_free: true,
+    expected_attendees: ['Business', 'CS', 'Design', 'Startups'],
+    discovery_slot: false,
+    accessibility: ['wheelchair', 'elevator']
+  },
+  {
+    id: 'evt-010',
+    title: 'Mindfulness & Focus — 20min Reset',
+    department: 'Psychology',
+    type: 'workshop',
+    location: 'Philosophy Building, Room 101',
+    start_time: '2026-02-28T13:00:00Z',
+    duration_minutes: 20,
+    is_free: true,
+    expected_attendees: ['Psychology', 'Philosophy', 'Sports'],
+    discovery_slot: false,
+    accessibility: ['wheelchair', 'elevator', 'sensory_friendly', 'visual_aids']
+  },
+  {
+    id: 'evt-011',
+    title: 'Rapid Prototyping Sprint',
+    department: 'Design',
+    type: 'workshop',
+    location: 'Building C, Room 204',
+    start_time: '2026-02-28T11:00:00Z',
+    duration_minutes: 45,
+    is_free: true,
+    expected_attendees: ['Design', 'CS', 'Architecture'],
+    discovery_slot: true,
+    accessibility: ['wheelchair', 'elevator']
   }
 ];
 

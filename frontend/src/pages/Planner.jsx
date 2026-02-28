@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Card from '../components/ui/Card';
@@ -66,8 +66,8 @@ function optimizeSchedule(events, timeBudget, freeOnly, accessNeeds, interests, 
 
     // Budget fit
     if (freeOnly && !evt.is_free) return null;
-    if (evt.duration_minutes > timeBudget) score -= 20;
-    else score += 10;
+    if (evt.duration_minutes > timeBudget) return null; // Skip events longer than budget
+    score += Math.max(0, 20 - (evt.duration_minutes / timeBudget) * 15); // Prefer events that fit well
 
     // Accessibility check
     if (accessNeeds.includes('wheelchair') || accessNeeds.includes('elevator')) {
@@ -75,41 +75,45 @@ function optimizeSchedule(events, timeBudget, freeOnly, accessNeeds, interests, 
       if (loc.elevator && loc.ramp) score += 5;
     }
     if (accessNeeds.includes('sensory') && evt.type === 'performance') {
-      score -= 10; // Performances may be loud
+      score -= 5; // Mild penalty — performances may be loud
     }
 
-    // Walking time from start location
-    const walkTime = loc.walkFrom?.[startLocation] || 10;
-    score -= walkTime; // Penalize far locations
+    // Walking time from start location (doesn't count against time budget)
+    const walkTime = loc.walkFrom?.[startLocation] || 8;
+    score -= Math.floor(walkTime / 3); // Mild penalty for distance
 
     // Cross-departmental bonus
-    score += evtDepts.length * 3;
+    score += evtDepts.length * 4;
 
     // Discovery slot bonus
-    if (evt.discovery_slot) score += 8;
+    if (evt.discovery_slot) score += 10;
 
-    return { ...evt, score, walkTime, accessible: loc.elevator || loc.ramp || loc.floor === 0, zone: loc.zone || 'Unknown' };
+    // Serendipity bonus — never-visited department
+    score += 5;
+
+    return { ...evt, score: Math.max(score, 15), walkTime, accessible: loc.elevator || loc.ramp || loc.floor === 0, zone: loc.zone || 'Unknown' };
   }).filter(Boolean);
 
   // Sort by score descending
   scored.sort((a, b) => b.score - a.score);
 
-  // Greedy non-overlapping selection within total time budget
+  // Greedy non-overlapping selection — only event duration counts against budget
   const plan = [];
-  let totalTime = 0;
+  let totalEventTime = 0;
+  let totalWalkTime = 0;
 
   for (const evt of scored) {
-    const evtTotal = evt.duration_minutes + evt.walkTime;
-    if (totalTime + evtTotal <= timeBudget) {
+    if (totalEventTime + evt.duration_minutes <= timeBudget) {
       plan.push(evt);
-      totalTime += evtTotal;
+      totalEventTime += evt.duration_minutes;
+      totalWalkTime += evt.walkTime;
     }
   }
 
   // Sort by start time for timeline display
   plan.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
-  return { plan, totalTime, eventsConsidered: scored.length };
+  return { plan, totalEventTime, totalWalkTime, totalTime: totalEventTime + totalWalkTime, eventsConsidered: scored.length };
 }
 
 /* ── Walking route SVG ── */
@@ -185,44 +189,49 @@ function RouteMap({ plan }) {
 }
 
 export default function Planner() {
-  const { student, attractor } = useDriftStore();
-  const [timeBudget, setTimeBudget] = useState(student?.time_budget_minutes || 90);
-  const [freeOnly, setFreeOnly] = useState(student?.free_only || false);
+  const { student } = useDriftStore();
+  const [timeBudget, setTimeBudget] = useState(120);
+  const [freeOnly, setFreeOnly] = useState(false);
   const [accessNeeds, setAccessNeeds] = useState([]);
   const [selectedInterests, setSelectedInterests] = useState(student?.interests || ['AI', 'Music']);
   const [startLocation, setStartLocation] = useState('Main Gate');
+  const [result, setResult] = useState(null);
   const [showPlan, setShowPlan] = useState(false);
-
-  const allEvents = [...MOCK_EVENTS, ...MOCK_DISCOVERY_SLOTS.map(s => ({
-    id: s.id,
-    title: s.name,
-    department: s.tags?.[0] || 'General',
-    type: 'social',
-    location: s.location,
-    start_time: s.available_times?.[0],
-    duration_minutes: 60,
-    is_free: true,
-    expected_attendees: s.tags || [],
-    discovery_slot: true,
-  }))];
 
   const toggleAccess = (id) => {
     setAccessNeeds(prev => prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]);
+    setShowPlan(false); // hide stale plan on constraint change
   };
 
   const toggleInterest = (interest) => {
     setSelectedInterests(prev =>
       prev.includes(interest) ? prev.filter(i => i !== interest) : [...prev, interest]
     );
+    setShowPlan(false);
   };
 
-  const result = useMemo(() => {
-    if (!showPlan) return null;
-    return optimizeSchedule(allEvents, timeBudget, freeOnly, accessNeeds, selectedInterests, startLocation);
-  }, [showPlan, timeBudget, freeOnly, accessNeeds, selectedInterests, startLocation]);
+  const generatePlan = useCallback(() => {
+    const allEvents = [...MOCK_EVENTS, ...MOCK_DISCOVERY_SLOTS.map(s => ({
+      id: s.id,
+      title: s.name,
+      department: s.tags?.[0] || 'General',
+      type: 'social',
+      location: s.location,
+      start_time: s.available_times?.[0],
+      duration_minutes: 60,
+      is_free: true,
+      expected_attendees: s.tags || [],
+      discovery_slot: true,
+    }))];
 
-  const totalWalk = result?.plan?.reduce((sum, e) => sum + (e.walkTime || 0), 0) || 0;
-  const totalEvent = result?.plan?.reduce((sum, e) => sum + e.duration_minutes, 0) || 0;
+    const res = optimizeSchedule(allEvents, timeBudget, freeOnly, accessNeeds, selectedInterests, startLocation);
+    console.log('[Planner] Generated plan:', res.plan.length, 'activities from', res.eventsConsidered, 'candidates. Budget:', timeBudget, 'Access:', accessNeeds, 'Interests:', selectedInterests);
+    setResult(res);
+    setShowPlan(true);
+  }, [timeBudget, freeOnly, accessNeeds, selectedInterests, startLocation]);
+
+  const totalWalk = result?.totalWalkTime || 0;
+  const totalEvent = result?.totalEventTime || 0;
   const totalCost = result?.plan?.filter(e => !e.is_free).length || 0;
 
   return (
@@ -318,7 +327,7 @@ export default function Planner() {
 
         <Button
           variant="primary"
-          onClick={() => setShowPlan(true)}
+          onClick={generatePlan}
           className="planner-generate-btn"
         >
           🧠 Generate Optimized Plan
@@ -428,10 +437,10 @@ export default function Planner() {
 
             {/* Adjust button */}
             <div className="planner-actions">
-              <Button variant="outline" onClick={() => setShowPlan(false)}>
+              <Button variant="outline" onClick={() => { setShowPlan(false); setResult(null); }}>
                 ⚙️ Adjust Constraints
               </Button>
-              <Button variant="primary" onClick={() => setShowPlan(false)}>
+              <Button variant="primary" onClick={() => { setShowPlan(false); setResult(null); }}>
                 ✅ Looks Good
               </Button>
             </div>
