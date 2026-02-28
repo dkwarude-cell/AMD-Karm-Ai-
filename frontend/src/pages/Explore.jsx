@@ -5,6 +5,7 @@ import Chip from '../components/ui/Chip';
 import Button from '../components/ui/Button';
 import Tag from '../components/ui/Tag';
 import Modal from '../components/ui/Modal';
+import { Link } from 'react-router-dom';
 import useDriftStore from '../store/useDriftStore';
 import { MOCK_EVENTS, MOCK_DISCOVERY_SLOTS } from '../data/mockData';
 import { getEvents, getActiveSlots } from '../lib/api';
@@ -195,6 +196,9 @@ export default function Explore() {
                   No activities fit your current constraints. Try adjusting your time budget in Profile.
                 </p>
               )}
+              <Link to="/planner" className="explore-planner__full-link">
+                🧠 Open Full Planner →
+              </Link>
             </div>
           );
         })()}

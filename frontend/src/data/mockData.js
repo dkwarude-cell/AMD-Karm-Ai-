@@ -236,7 +236,8 @@ export const MOCK_EVENTS = [
     duration_minutes: 120,
     is_free: true,
     expected_attendees: ['Music', 'Arts', 'Literature'],
-    discovery_slot: true
+    discovery_slot: true,
+    accessibility: ['wheelchair', 'elevator', 'hearing_loop']
   },
   {
     id: 'evt-002',
@@ -248,7 +249,8 @@ export const MOCK_EVENTS = [
     duration_minutes: 90,
     is_free: true,
     expected_attendees: ['Business', 'CS', 'Design'],
-    discovery_slot: true
+    discovery_slot: true,
+    accessibility: ['wheelchair', 'elevator']
   },
   {
     id: 'evt-003',
@@ -260,7 +262,8 @@ export const MOCK_EVENTS = [
     duration_minutes: 120,
     is_free: true,
     expected_attendees: ['Fine Arts', 'Design', 'Architecture'],
-    discovery_slot: false
+    discovery_slot: false,
+    accessibility: [] // Floor 3, no elevator
   },
   {
     id: 'evt-004',
@@ -272,7 +275,34 @@ export const MOCK_EVENTS = [
     duration_minutes: 60,
     is_free: true,
     expected_attendees: ['Physics', 'CS', 'Mathematics'],
-    discovery_slot: true
+    discovery_slot: true,
+    accessibility: ['wheelchair', 'elevator', 'visual_aids']
+  },
+  {
+    id: 'evt-005',
+    title: 'AI Ethics Panel Discussion',
+    department: 'Philosophy',
+    type: 'talk',
+    location: 'Philosophy Building, Room 101',
+    start_time: '2026-03-01T10:00:00Z',
+    duration_minutes: 60,
+    is_free: true,
+    expected_attendees: ['Philosophy', 'CS', 'Psychology'],
+    discovery_slot: true,
+    accessibility: ['wheelchair', 'elevator', 'hearing_loop']
+  },
+  {
+    id: 'evt-006',
+    title: 'Generative Art Workshop',
+    department: 'Design',
+    type: 'workshop',
+    location: 'Architecture Building, Ground Floor',
+    start_time: '2026-03-01T11:30:00Z',
+    duration_minutes: 90,
+    is_free: true,
+    expected_attendees: ['Design', 'CS', 'Arts', 'Architecture'],
+    discovery_slot: false,
+    accessibility: ['wheelchair', 'ramp', 'sensory_friendly']
   }
 ];
 

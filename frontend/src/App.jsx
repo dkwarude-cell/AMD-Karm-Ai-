@@ -9,6 +9,7 @@ import DriftHistory from './pages/DriftHistory';
 import Explore from './pages/Explore';
 import Profile from './pages/Profile';
 import CreatorStudio from './pages/CreatorStudio';
+import Planner from './pages/Planner';
 import Onboarding from './pages/Onboarding';
 import useOnboardingStore from './store/useOnboardingStore';
 import './styles/global.css';
@@ -74,6 +75,7 @@ function AnimatedRoutes() {
         <Route path="/history" element={<RequireOnboarding><PageWrap><DriftHistory /></PageWrap></RequireOnboarding>} />
         <Route path="/explore" element={<RequireOnboarding><PageWrap><Explore /></PageWrap></RequireOnboarding>} />
         <Route path="/create" element={<RequireOnboarding><PageWrap><CreatorStudio /></PageWrap></RequireOnboarding>} />
+        <Route path="/planner" element={<RequireOnboarding><PageWrap><Planner /></PageWrap></RequireOnboarding>} />
         <Route path="/profile" element={<RequireOnboarding><PageWrap><Profile /></PageWrap></RequireOnboarding>} />
       </Routes>
     </AnimatePresence>

@@ -339,3 +339,23 @@
   border-radius: 8px;
   text-align: center;
 }
+
+.explore-planner__full-link {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(123, 97, 255, 0.15), rgba(0, 229, 204, 0.10));
+  border: 1px solid rgba(123, 97, 255, 0.25);
+  border-radius: var(--radius-md, 8px);
+  color: var(--accent-primary, #7B61FF);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.explore-planner__full-link:hover {
+  background: linear-gradient(135deg, rgba(123, 97, 255, 0.25), rgba(0, 229, 204, 0.18));
+  transform: translateY(-1px);
+}

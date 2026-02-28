@@ -1,0 +1,299 @@
+/* ═════════════════════════════════════════════
+   Campus Life Planner — Criterion 3
+   ═════════════════════════════════════════════ */
+
+.planner-page {
+  padding: 80px 16px 120px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.planner-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.planner-header__title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.planner-header__sub {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+}
+
+.planner-header__link {
+  color: var(--accent-primary);
+  font-size: 0.85rem;
+  text-decoration: none;
+  white-space: nowrap;
+  margin-top: 6px;
+}
+
+/* ── Constraints Card ── */
+.planner-constraints {
+  backdrop-filter: blur(20px) saturate(1.4);
+  margin-bottom: 24px;
+}
+
+.planner-section-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 16px;
+}
+
+.planner-field {
+  margin-bottom: 20px;
+}
+
+.planner-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.planner-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.planner-help-text {
+  font-size: 0.75rem;
+  color: var(--accent-secondary);
+  margin: 6px 0 0;
+  opacity: 0.8;
+}
+
+.planner-generate-btn {
+  width: 100%;
+  margin-top: 12px;
+  font-size: 1rem;
+  padding: 14px;
+}
+
+/* ── Summary Stats ── */
+.planner-summary {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.planner-stat {
+  flex: 1 1 60px;
+  min-width: 60px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 14px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.planner-stat__value {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.planner-stat--accessible .planner-stat__value {
+  color: var(--accent-secondary);
+}
+
+.planner-stat__label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ── Route Map ── */
+.planner-route {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.planner-route__svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* ── Timeline ── */
+.planner-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.planner-event {
+  display: flex;
+  gap: 12px;
+}
+
+.planner-event__time-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 52px;
+  padding-top: 16px;
+  position: relative;
+}
+
+.planner-event__time {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.planner-event__end {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.planner-event__line {
+  width: 2px;
+  flex: 1;
+  background: linear-gradient(to bottom, var(--accent-primary), transparent);
+  margin-top: 6px;
+  border-radius: 1px;
+}
+
+.planner-event__card {
+  flex: 1;
+}
+
+.planner-event__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.planner-event__title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.planner-event__badges {
+  display: flex;
+  gap: 4px;
+}
+
+.planner-event__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.73rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+/* ── Why This — Transparent Reasoning ── */
+.planner-event__why {
+  background: rgba(123, 97, 255, 0.08);
+  border: 1px solid rgba(123, 97, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.planner-event__why-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  margin-right: 4px;
+}
+
+.planner-event__why-text {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.planner-event__depts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* ── Empty State ── */
+.planner-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 32px;
+}
+
+/* ── Actions ── */
+.planner-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+.planner-actions > * {
+  flex: 1;
+}
+
+/* ── Transparency Box ── */
+.planner-transparency {
+  background: rgba(0, 229, 204, 0.06);
+  border: 1px solid rgba(0, 229, 204, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.planner-transparency strong {
+  color: var(--accent-secondary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 400px) {
+  .planner-header__title {
+    font-size: 1.3rem;
+  }
+  .planner-summary {
+    gap: 6px;
+  }
+  .planner-stat {
+    padding: 10px 4px;
+  }
+  .planner-stat__value {
+    font-size: 1rem;
+  }
+}
