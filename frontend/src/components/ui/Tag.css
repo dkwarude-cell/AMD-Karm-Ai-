@@ -1,0 +1,14 @@
+.drift-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(123, 97, 255, 0.12);
+  border: 1px solid rgba(123, 97, 255, 0.3);
+  color: var(--text-accent);
+  border-radius: var(--radius-pill);
+  height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}

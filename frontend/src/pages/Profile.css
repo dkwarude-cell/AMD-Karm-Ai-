@@ -1,0 +1,130 @@
+.profile-page {
+  padding: var(--space-lg);
+  padding-bottom: 100px;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 3px solid var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.profile-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.profile-dept {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Score Card */
+.profile-score-card {
+  margin-bottom: var(--space-xl);
+}
+
+.profile-score-card__row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.profile-score-card__row > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.profile-score-card__label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile-score-card__value {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.profile-score-card__streak {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+/* Sections */
+.profile-section {
+  margin-bottom: var(--space-xl);
+}
+
+.profile-section__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+/* Preferences */
+.profile-prefs {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.profile-pref-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.profile-pref-row:last-child {
+  border-bottom: none;
+}
+
+.profile-pref-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}

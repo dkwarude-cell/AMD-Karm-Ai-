@@ -1,0 +1,37 @@
+.bubble-vis {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bubble-vis svg {
+  overflow: visible;
+}
+
+.bubble-vis__tooltip {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-elevated);
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-card);
+  z-index: 10;
+}
+
+.bubble-vis__tooltip .visited {
+  color: var(--accent-primary);
+}
+
+.bubble-vis__tooltip .unvisited {
+  color: var(--text-muted);
+}

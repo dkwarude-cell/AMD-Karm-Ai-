@@ -1,0 +1,40 @@
+.stat-card {
+  background: var(--bg-surface);
+  border: var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.stat-card__icon {
+  font-size: 20px;
+  margin-bottom: var(--space-xs);
+}
+
+.stat-card__value {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-card__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.stat-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.stat-card__progress {
+  margin-top: var(--space-sm);
+}
