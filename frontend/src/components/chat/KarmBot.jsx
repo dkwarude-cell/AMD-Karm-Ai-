@@ -166,81 +166,90 @@ export default function KarmBot() {
     if (e.key === 'Enter') handleSend();
   };
 
-  if (!open) {
-    return (
-      <motion.button
-        className="karmbot-fab"
-        onClick={() => setOpen(true)}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1, type: 'spring' }}
-        title="KarmBot — Campus Assistant"
-      >
-        🤖
-      </motion.button>
-    );
-  }
-
   return (
-    <AnimatePresence>
-      <motion.div
-        className="karmbot-panel"
-        initial={{ opacity: 0, y: 40, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 40, scale: 0.95 }}
-        transition={{ type: 'spring', damping: 24 }}
-      >
-        <div className="karmbot-header">
-          <div className="karmbot-header__title">
-            <span>🤖</span> KarmBot
-            <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
-              Budget & constraint-aware
-            </span>
-          </div>
-          <button className="karmbot-header__close" onClick={() => setOpen(false)}>✕</button>
-        </div>
+    <>
+      {/* FAB — visible when panel is closed */}
+      <AnimatePresence>
+        {!open && (
+          <motion.button
+            key="karmbot-fab"
+            className="karmbot-fab"
+            onClick={() => setOpen(true)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', damping: 20 }}
+            title="KarmBot — Campus Assistant"
+          >
+            🤖
+          </motion.button>
+        )}
+      </AnimatePresence>
 
-        <div className="karmbot-messages" ref={scrollRef}>
-          {messages.map((msg, i) => (
-            <div key={i} className={`karmbot-msg karmbot-msg--${msg.role}`}>
-              {msg.text}
-              {msg.cards && msg.cards.map((card, j) => (
-                <div key={j} className="karmbot-result-card">
-                  <div className="karmbot-result-card__title">{card.title}</div>
-                  <div className="karmbot-result-card__meta">{card.meta}</div>
-                  <div className="karmbot-result-card__why">💡 {card.why}</div>
+      {/* Chat Panel — visible when open */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="karmbot-panel"
+            className="karmbot-panel"
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 40, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 24 }}
+          >
+            <div className="karmbot-header">
+              <div className="karmbot-header__title">
+                <span>🤖</span> KarmBot
+                <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
+                  Budget & constraint-aware
+                </span>
+              </div>
+              <button className="karmbot-header__close" onClick={() => setOpen(false)}>✕</button>
+            </div>
+
+            <div className="karmbot-messages" ref={scrollRef}>
+              {messages.map((msg, i) => (
+                <div key={i} className={`karmbot-msg karmbot-msg--${msg.role}`}>
+                  {msg.text}
+                  {msg.cards && msg.cards.map((card, j) => (
+                    <div key={j} className="karmbot-result-card">
+                      <div className="karmbot-result-card__title">{card.title}</div>
+                      <div className="karmbot-result-card__meta">{card.meta}</div>
+                      <div className="karmbot-result-card__why">💡 {card.why}</div>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
-          ))}
-        </div>
 
-        {/* Quick prompt chips */}
-        {messages.length <= 2 && (
-          <div className="karmbot-chips">
-            {QUICK_PROMPTS.map((prompt) => (
-              <button key={prompt} className="karmbot-chip" onClick={() => handleSend(prompt)}>
-                {prompt}
+            {/* Quick prompt chips */}
+            {messages.length <= 2 && (
+              <div className="karmbot-chips">
+                {QUICK_PROMPTS.map((prompt) => (
+                  <button key={prompt} className="karmbot-chip" onClick={() => handleSend(prompt)}>
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="karmbot-input-row">
+              <input
+                className="karmbot-input"
+                placeholder="Ask about events, budget, time..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <button className="karmbot-send" onClick={() => handleSend()} disabled={!input.trim()}>
+                →
               </button>
-            ))}
-          </div>
+            </div>
+          </motion.div>
         )}
-
-        <div className="karmbot-input-row">
-          <input
-            className="karmbot-input"
-            placeholder="Ask about events, budget, time..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button className="karmbot-send" onClick={() => handleSend()} disabled={!input.trim()}>
-            →
-          </button>
-        </div>
-      </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 }

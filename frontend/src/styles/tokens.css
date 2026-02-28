@@ -4,6 +4,8 @@
   --bg-surface: #12121F;
   --bg-elevated: #1A1A2E;
   --bg-hover: #1E1E35;
+  --surface-primary: #12121F;
+  --surface-secondary: #1A1A2E;
 
   /* Brand Colors */
   --accent-primary: #7B61FF;
@@ -24,6 +26,7 @@
   --text-accent: #B8A8FF;
 
   /* Borders */
+  --border: rgba(123, 97, 255, 0.15);
   --border-default: 1px solid rgba(123, 97, 255, 0.15);
   --border-active: 1px solid rgba(123, 97, 255, 0.5);
   --border-glow: 1px solid rgba(0, 229, 204, 0.3);
