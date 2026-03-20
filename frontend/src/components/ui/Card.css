@@ -1,24 +1,27 @@
 .drift-card {
-  background: var(--bg-surface);
-  border: var(--border-default);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: var(--border-soft);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-card-soft);
   padding: var(--space-lg);
   position: relative;
   overflow: hidden;
-  transition: border var(--transition-base);
+  transition: transform var(--transition-fast), border var(--transition-base), box-shadow var(--transition-base);
 }
 
 .drift-card:hover {
   border: var(--border-active);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
 }
 
 .drift-card--elevated {
-  background: var(--bg-elevated);
+  background: var(--glass-bg-strong);
 }
 
 .drift-card--portal {
-  background: var(--bg-surface);
+  background: var(--glass-bg-strong);
 }
 
 .drift-card__portal-bg {

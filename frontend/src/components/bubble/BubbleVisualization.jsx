@@ -80,13 +80,13 @@ export default function BubbleVisualization({ departments = [], visited = [] }) 
                   ? 'rgba(123, 97, 255, 0.7)'
                   : 'rgba(123, 97, 255, 0.4)'
                 : hoveredIndex === i
-                  ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(255, 255, 255, 0.03)'
+                  ? 'rgba(123, 97, 255, 0.12)'
+                  : 'rgba(123, 97, 255, 0.05)'
             }
             stroke={
               seg.isVisited
                 ? 'rgba(123, 97, 255, 0.6)'
-                : 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(123, 97, 255, 0.18)'
             }
             strokeWidth={seg.isVisited ? 1.5 : 1}
             strokeDasharray={seg.isVisited ? 'none' : '4 4'}

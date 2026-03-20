@@ -1,7 +1,7 @@
 import random
 import uuid
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict, Tuple
 
 from ..models.student import StudentProfile, AttractorState
 from ..models.drift import DriftNudge, DriftReasoning
@@ -87,16 +87,36 @@ class NudgeEngine:
     ) -> DriftNudge:
         """Generate a single drift nudge for today."""
 
-        # Filter candidates by constraints
-        candidates = self._apply_constraints(
+        # Filter candidates by constraints and turn them into drift options.
+        filtered_events, filtered_slots = self._apply_constraints(
             student, available_events or [], available_slots or []
         )
+        constrained_options = self._to_drift_options(filtered_events, filtered_slots)
 
-        # Epsilon-greedy selection
-        if random.random() < self.EPSILON:
-            drift_data = self._explore(student, attractor)
+        # Epsilon-greedy selection: prioritize constrained options first.
+        if constrained_options:
+            if random.random() < self.EPSILON:
+                drift_data = self._explore_from_options(constrained_options, attractor)
+            else:
+                drift_data = self._exploit_from_options(constrained_options, fingerprint)
         else:
-            drift_data = self._exploit(fingerprint, attractor)
+            fallback_options = self._constrained_sample_options(student)
+            if fallback_options:
+                if random.random() < self.EPSILON:
+                    drift_data = self._explore_from_options(fallback_options, attractor)
+                else:
+                    drift_data = self._exploit_from_options(fallback_options, fingerprint)
+            else:
+                # Guaranteed-safe final fallback if the budget is extremely tight.
+                drift_data = {
+                    'type': 'route',
+                    'title': 'Take a short detour through a new corridor',
+                    'description': 'Quick exploration nudge that fits your current constraints.',
+                    'location': 'Campus Central Corridor',
+                    'time': 'Anytime',
+                    'time_required_minutes': min(10, max(student.time_budget_minutes, 5)),
+                    'is_free': True,
+                }
 
         # Build reasoning
         reasoning = self._build_reasoning(student, attractor, drift_data)
@@ -113,21 +133,92 @@ class NudgeEngine:
             time=drift_data['time'],
             collision_potential_score=round(collision_score, 1),
             reasoning=reasoning,
-            is_free=True,
+            is_free=drift_data.get('is_free', True),
             time_required_minutes=drift_data['time_required_minutes'],
             created_at=datetime.utcnow(),
             status='pending'
         )
 
-    def _apply_constraints(self, student, events, slots):
-        filtered = []
+    def _apply_constraints(self, student, events, slots) -> Tuple[List[CampusEvent], List[DiscoverySlot]]:
+        filtered_events: List[CampusEvent] = []
+        needs = {a.lower() for a in (student.accessibility or [])}
+
+        def has_access(required: set, available: List[str]) -> bool:
+            if not required:
+                return True
+            available_set = {a.lower() for a in (available or [])}
+            return required.issubset(available_set)
+
         for event in events:
             if student.free_only and not event.is_free:
                 continue
             if event.duration_minutes > student.time_budget_minutes:
                 continue
-            filtered.append(event)
-        return filtered
+            if not has_access(needs, event.accessibility):
+                continue
+            filtered_events.append(event)
+
+        filtered_slots: List[DiscoverySlot] = []
+        for slot in slots:
+            # Discovery slots are treated as short interactions by default.
+            if student.time_budget_minutes < 30:
+                continue
+            if not has_access(needs, slot.accessibility):
+                continue
+            filtered_slots.append(slot)
+
+        return filtered_events, filtered_slots
+
+    def _to_drift_options(self, events: List[CampusEvent], slots: List[DiscoverySlot]) -> List[Dict]:
+        options: List[Dict] = []
+        for event in events:
+            options.append({
+                'type': 'event',
+                'title': event.title,
+                'description': f"{event.department} • {event.type.title()} • {'Free' if event.is_free else 'Paid'}",
+                'location': event.location,
+                'time': event.start_time.strftime('%I:%M %p').lstrip('0'),
+                'time_required_minutes': event.duration_minutes,
+                'is_free': event.is_free,
+            })
+
+        for slot in slots:
+            first_time = slot.available_times[0].strftime('%I:%M %p').lstrip('0') if slot.available_times else 'Anytime'
+            options.append({
+                'type': 'space',
+                'title': slot.name,
+                'description': slot.description,
+                'location': slot.location,
+                'time': first_time,
+                'time_required_minutes': 30,
+                'is_free': True,
+            })
+        return options
+
+    def _explore_from_options(self, options: List[Dict], attractor: AttractorState) -> Dict:
+        explored_types = {t.lower() for t in (attractor.event_types_attended or [])}
+        unseen = [o for o in options if o['type'].lower() not in explored_types]
+        pool = unseen if unseen else options
+        return random.choice(pool)
+
+    def _exploit_from_options(self, options: List[Dict], fingerprint: SerendipityFingerprint) -> Dict:
+        best_type = (fingerprint.best_drift_type or 'event').lower() if fingerprint else 'event'
+        preferred = [o for o in options if o['type'].lower() == best_type]
+        pool = preferred if preferred else options
+        return random.choice(pool)
+
+    def _constrained_sample_options(self, student: StudentProfile) -> List[Dict]:
+        options = []
+        for sample in self.SAMPLE_DRIFTS:
+            if sample['time_required_minutes'] > student.time_budget_minutes:
+                continue
+            if student.free_only and not sample.get('is_free', True):
+                continue
+
+            enriched = dict(sample)
+            enriched['is_free'] = sample.get('is_free', True)
+            options.append(enriched)
+        return options
 
     def _explore(self, student, attractor):
         """Pick from categories student has NEVER tried."""

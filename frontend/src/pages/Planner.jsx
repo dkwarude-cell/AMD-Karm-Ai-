@@ -235,7 +235,7 @@ export default function Planner() {
   const totalCost = result?.plan?.filter(e => !e.is_free).length || 0;
 
   return (
-    <div className="planner-page">
+    <div className="planner-page page-shell">
       {/* Header */}
       <div className="planner-header">
         <div>

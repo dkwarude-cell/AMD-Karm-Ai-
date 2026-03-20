@@ -2,20 +2,27 @@
 Chat assistant routes — KarmBot AI-powered conversational assistant.
 Uses OpenRouter API with a constrained system prompt scoped to Karm AI.
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional
 import httpx
 import os
 import json
+from pathlib import Path
+from dotenv import load_dotenv
 
 from ...db.database import db
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-# Load API key from environment
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+
+def _get_openrouter_api_key() -> str:
+    # Resolve backend/.env regardless of working directory.
+    backend_env = Path(__file__).resolve().parents[3] / ".env"
+    load_dotenv(backend_env, override=True)
+    return os.environ.get("OPENROUTER_API_KEY", "")
 
 # Models to try in order (free tier)
 MODELS = [
@@ -73,8 +80,13 @@ class ChatResponse(BaseModel):
 async def chat_ask(req: ChatRequest):
     """AI-powered conversational assistant for Karm AI."""
 
-    if not OPENROUTER_API_KEY:
-        raise HTTPException(status_code=500, detail="AI service not configured")
+    api_key = _get_openrouter_api_key()
+
+    if not api_key:
+        return ChatResponse(
+            message=_fallback_response(req.query),
+            follow_up="Set OPENROUTER_API_KEY to enable full AI responses."
+        )
 
     # Build student context
     student_context = ""
@@ -131,7 +143,7 @@ async def chat_ask(req: ChatRequest):
                     resp = await client.post(
                         OPENROUTER_URL,
                         headers={
-                            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                            "Authorization": f"Bearer {api_key}",
                             "Content-Type": "application/json",
                             "HTTP-Referer": "https://karm-ai.app",
                             "X-Title": "Karm AI"
@@ -178,15 +190,49 @@ async def chat_ask(req: ChatRequest):
 
 
 def _fallback_response(query: str) -> str:
-    """Simple keyword-based fallback when AI is unavailable."""
+    """Comprehensive keyword-based fallback response system."""
     q = query.lower()
+    
+    # Time-based queries
     if "tonight" in q or "evening" in q:
-        return "🎵 Tonight there's an Open Mic Night at the Music Dept Hall at 7:30 PM — it's free and has a discovery slot! Great for meeting people from Arts and Literature."
-    elif "workshop" in q:
-        return "🎨 There's a Life Drawing Session at Fine Arts Studio 3 on Mar 1 at 2 PM — 120 min, free. Perfect for breaking out of your usual bubble!"
-    elif "free" in q:
-        return "All current events are free! Open Mic tonight, Startup Pitch Practice and Life Drawing on Mar 1, and Quantum Computing Intro on Mar 2."
-    elif "bubble" in q or "bored" in q or "new" in q:
-        return "🌀 Time to break your bubble! Try the Open Mic Night tonight for a creative collision, or sign up for the Photography Club Portfolio Reviews this weekend."
+        return "🎵 Tonight there's an Open Mic Night at the Music Dept Hall at 7:30 PM — it's free and has a discovery slot! Great for meeting people from Arts and Literature. Plus, no experience needed, just bring your vibe! 🎤"
+    elif "tomorrow" in q or "next day" in q:
+        return "📅 Tomorrow (Mar 1) is packed! **Startup Pitch Practice** at 4 PM (Business Cell) for the entrepreneurial crowd, or **Life Drawing Session** at 2 PM (Fine Arts Studio 3) if you want creative vibes. Both free! Which appeals more?"
+    elif "weekend" in q or "saturday" in q or "sunday" in q:
+        return "🎨 This weekend check out the **Photography Club Portfolio Reviews** (Building C Room 204, Mar 1 3-4 PM). Great for meeting photography enthusiasts and getting feedback. Plus, photography is a gateway to seeing campus in new ways! 📸"
+    elif "next week" in q or "monday" in q or "march 2" in q:
+        return "💻 Coming up Mar 2: **Quantum Computing Intro** at Physics Lecture Hall 2 at 11 AM. If you're into physics, CS, or just curious about cutting-edge tech, this is a no-brainer. Free and you'll learn something mind-bending! 🧬"
+    
+    # Event/Activity type queries
+    elif "music" in q or "concert" in q or "performance" in q:
+        return "🎵 Perfect timing! **Open Mic Night** is tonight at 7:30 PM at Music Dept Hall. It's a free discovery slot event—bring an instrument, a poem, or just your enthusiasm. You don't need to perform; the crowd is super welcoming! 🎤"
+    elif "art" in q or "drawing" in q or "paint" in q or "creative" in q:
+        return "🎨 **Life Drawing Session** at Fine Arts Studio 3 on Mar 1, 2-4 PM. Free, 120 min, and a great way to meet the arts crowd. No experience needed—it's all skill levels. Plus, drawing is a legit way to explore campus differently! ✨"
+    elif "startup" in q or "pitch" in q or "business" in q or "entrepreneurship" in q:
+        return "🚀 **Startup Pitch Practice** at the Business/Entrepreneurship Cell on Mar 1, 4 PM. Free, 90 min. Perfect if you're building an idea, want to network with founders, or just curious about campus startups. Discovery slot available! 💡"
+    elif "tech" in q or "coding" in q or "computer" in q or "quantum" in q:
+        return "💻 **Quantum Computing Intro** — Mar 2, 11 AM, Physics Lecture Hall 2. Free course for all levels. If you're into CS, physics, or just want your brain stretched, this is peak discovery material. Genuinely mind-expanding! 🧬"
+    elif "debate" in q or "discussion" in q or "philosophy" in q:
+        return "🎙️ **Debate Society Open Practice** at Philosophy Building Room 101, Mar 2 at 5 PM. Great for sharp minds who love discussion. Discovery potential: meet people from totally different departments who think deep. 🧠"
+    elif "photography" in q or "photo" in q or "portfolio" in q:
+        return "📸 **Photography Club Portfolio Reviews** — Building C Room 204, Mar 1 3-4 PM. Get feedback from experienced photographers, see what others are creating, and connect with the visual storytelling crowd. Totally chill vibe! 🎞️"
+    
+    # Interest-based queries
+    elif "networking" in q or "meet people" in q or "friends" in q or "social" in q:
+        return "👥 For pure social discovery, **Open Mic Night** tonight (7:30 PM) is unbeatable—intimate crowd, shared appreciation, natural conversation starters. Or the **Life Drawing Session** (Mar 1 2 PM) if you prefer a more artistic crowd. Both break bubbles! 🌟"
+    elif "budget" in q or "broke" in q or "money" in q or "expensive" in q:
+        return "💰 Great news: ALL current events are 100% free! Open Mic tonight, Life Drawing (Mar 1 2pm), Startup Pitch (Mar 1 4pm), Quantum Computing (Mar 2 11am), Debate Practice (Mar 2 5pm). Zero cost, maximum discovery. 🎯"
+    elif "quiet" in q or "chill" in q or "relax" in q or "low-key" in q:
+        return "🧘 **Life Drawing Session** (Mar 1, 2 PM, Fine Arts Studio 3) is super chill and meditative. Or **Photography Club Reviews** (same day 3-4 PM) for quiet, focused creative energy. Both less chaotic than the Mic Night! ✨"
+    
+    # Exploration/Discovery queries
+    elif "bubble" in q or "bored" in q or "new" in q or "discover" in q or "try" in q:
+        return "🌀 Time to **break your bubble**! Here's a quick tour:\n🎵 Mic Night (tonight 7:30 PM) — audio/arts crowd\n🎨 Drawing (Mar 1 2 PM) — visual creatives\n🚀 Startup Pitch (Mar 1 4 PM) — entrepreneur vibes\n💻 Quantum (Mar 2 11 AM) — tech minds\nPick one that intimidates you a little—that's the sweet spot! 🎯"
+    elif "help" in q or "recommend" in q or "suggest" in q or "what should" in q:
+        return "🎯 I'd love to help! Tell me:\n1️⃣ What's your vibe? (arts, tech, business, social?)\n2️⃣ When are you free? (tonight, tomorrow, weekend?)\n3️⃣ Comfort level? (join a crowd or smaller gathering?)\nWith that, I can point you to the perfect discovery! 💡"
+    elif "event" in q or "activity" in q or "thing" in q or "something" in q:
+        return "✨ We have 4 amazing events this week:\n**Tonight 7:30 PM** — Open Mic Night (Music Dept)\n**Mar 1 2 PM** — Life Drawing (Fine Arts)\n**Mar 1 4 PM** — Startup Pitch (Business Cell)\n**Mar 2 11 AM** — Quantum Computing (Physics)\nWhich sounds least like what you'd normally do? That's your bubble-break! 🌟"
+    
+    # General fallback
     else:
-        return "I'm here to help you discover campus events and break your bubble! Ask me about tonight's events, workshops, or say 'I'm bored' for surprise recommendations. 🎯"
+        return "💫 I'm KarmBot, here to help you escape your bubble! Ask me about:\n🎵 Events & activities\n💰 Free things to do\n🌍 How to discover campus differently\n🎯 When you're bored & need a vibe shift\nOr just tell me what you're into, and I'll find you something unexpected! What sounds good right now? 🚀"

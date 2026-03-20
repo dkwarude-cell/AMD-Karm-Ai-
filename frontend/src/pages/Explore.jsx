@@ -92,19 +92,40 @@ export default function Explore() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [events, setEvents] = useState(MOCK_EVENTS);
   const [slots, setSlots] = useState(MOCK_DISCOVERY_SLOTS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pageError, setPageError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [bookedSlots, setBookedSlots] = useState(new Set());
   const { student, attractor, showToast, toastMessage } = useDriftStore();
 
   useEffect(() => {
+    setIsLoading(true);
+    setPageError(null);
     // Try API, fallback to mock
-    getEvents()
-      .then((res) => { if (res.data?.length > 0) setEvents(res.data); })
-      .catch(() => {});
-    getActiveSlots()
-      .then((res) => { if (res.data?.length > 0) setSlots(res.data); })
-      .catch(() => {});
-  }, []);
+    const eventParams = {
+      free_only: student?.free_only || false,
+      max_duration_minutes: student?.time_budget_minutes || undefined,
+      accessibility: (student?.accessibility || []).join(',') || undefined,
+    };
+
+    Promise.allSettled([getEvents(eventParams), getActiveSlots()]).then((results) => {
+      const [eventsRes, slotsRes] = results;
+
+      if (eventsRes.status === 'fulfilled' && eventsRes.value.data?.length > 0) {
+        setEvents(eventsRes.value.data);
+      }
+
+      if (slotsRes.status === 'fulfilled' && slotsRes.value.data?.length > 0) {
+        setSlots(slotsRes.value.data);
+      }
+
+      if (eventsRes.status === 'rejected' || slotsRes.status === 'rejected') {
+        setPageError('Live Explore data is unavailable. Showing curated fallback content.');
+      }
+
+      setIsLoading(false);
+    });
+  }, [student?.free_only, student?.time_budget_minutes, student?.accessibility]);
 
   const filteredEvents = events.filter(
     (e) => activeFilter === 'All' || e.type.toLowerCase() === activeFilter.toLowerCase()
@@ -125,7 +146,7 @@ export default function Explore() {
   };
 
   return (
-    <div className="explore-page">
+    <div className="explore-page page-shell">
       {/* Toast */}
       <AnimatePresence>
         {toastMessage && (
@@ -145,6 +166,21 @@ export default function Explore() {
         <h1 className="explore-header__title">🔍 Explore</h1>
         <p className="explore-header__sub">Events, discovery slots, and collision zones</p>
       </div>
+
+      {pageError && (
+        <Card className="state-card" style={{ marginBottom: 16 }}>
+          <strong>Using backup recommendations.</strong>
+          <p style={{ marginTop: 8 }}>{pageError}</p>
+        </Card>
+      )}
+
+      {isLoading && (
+        <div aria-live="polite" aria-busy="true" style={{ marginBottom: 16 }}>
+          <div className="skeleton" style={{ height: 150, marginBottom: 14 }} />
+          <div className="skeleton" style={{ height: 220, marginBottom: 14 }} />
+          <div className="skeleton" style={{ height: 220 }} />
+        </div>
+      )}
 
       {/* ── Smart Day Planner (Criterion 3: balances time, cost, accessibility, interests) ── */}
       <Card className="explore-planner">
@@ -266,7 +302,7 @@ export default function Explore() {
           </motion.div>
           );
         })}
-        {filteredEvents.length === 0 && (
+        {!isLoading && filteredEvents.length === 0 && (
           <div className="explore-empty">
             No events in this category right now. Check back later — the campus is always moving.
           </div>
@@ -317,6 +353,12 @@ export default function Explore() {
           </motion.div>
           );
         })}
+        {!isLoading && slots.length === 0 && (
+          <Card className="state-card">
+            <strong>No discovery slots are open right now.</strong>
+            <p style={{ marginTop: 8 }}>Try again later or publish one in Creator Studio.</p>
+          </Card>
+        )}
       </div>
 
       {/* Event Detail Modal */}

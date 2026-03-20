@@ -2,13 +2,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(123, 97, 255, 0.12);
-  border: 1px solid rgba(123, 97, 255, 0.3);
+  background: rgba(91, 92, 230, 0.1);
+  border: 1px solid rgba(91, 92, 230, 0.22);
   color: var(--text-accent);
   border-radius: var(--radius-pill);
-  height: 32px;
+  min-height: 28px;
   padding: 0 14px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
 }

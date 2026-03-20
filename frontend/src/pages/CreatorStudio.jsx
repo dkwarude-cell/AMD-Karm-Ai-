@@ -117,7 +117,7 @@ export default function CreatorStudio() {
   };
 
   return (
-    <div className="creator-page">
+    <div className="creator-page page-shell">
       {/* Toast */}
       <AnimatePresence>
         {toastMessage && (
@@ -259,7 +259,7 @@ export default function CreatorStudio() {
         <motion.div
           className="creator-poster-preview"
           style={{
-            background: `linear-gradient(135deg, ${brandColor}, ${brandColor}88, #0a0a0f)`,
+            background: `linear-gradient(135deg, ${brandColor}33, ${brandColor}14, #ffffff)`,
           }}
           layout
         >

@@ -77,7 +77,8 @@ class InMemoryDB:
                 duration_minutes=120,
                 is_free=True,
                 expected_attendees=['Music', 'Arts', 'Literature'],
-                discovery_slot=True
+                discovery_slot=True,
+                accessibility=['wheelchair', 'elevator', 'hearing_loop']
             ),
             CampusEvent(
                 id='evt-002',
@@ -89,7 +90,8 @@ class InMemoryDB:
                 duration_minutes=90,
                 is_free=True,
                 expected_attendees=['Business', 'CS', 'Design'],
-                discovery_slot=True
+                discovery_slot=True,
+                accessibility=['wheelchair', 'elevator']
             ),
             CampusEvent(
                 id='evt-003',
@@ -101,7 +103,8 @@ class InMemoryDB:
                 duration_minutes=120,
                 is_free=True,
                 expected_attendees=['Fine Arts', 'Design', 'Architecture'],
-                discovery_slot=False
+                discovery_slot=False,
+                accessibility=[]
             ),
         ]
 
@@ -114,7 +117,8 @@ class InMemoryDB:
                 location='Building C, Room 204',
                 available_times=[datetime(2026, 3, 1, 15, 0)],
                 description='Get your portfolio reviewed.',
-                tags=['creative', 'portfolio', 'photography']
+                tags=['creative', 'portfolio', 'photography'],
+                accessibility=['wheelchair', 'elevator']
             ),
         ]
 

@@ -15,6 +15,7 @@ class CampusEvent(BaseModel):
     is_free: bool = True
     expected_attendees: List[str] = Field(default_factory=list)
     discovery_slot: bool = False
+    accessibility: List[str] = Field(default_factory=list)
 
 
 class DiscoverySlot(BaseModel):
@@ -26,6 +27,7 @@ class DiscoverySlot(BaseModel):
     available_times: List[datetime]
     description: str
     tags: List[str] = Field(default_factory=list)
+    accessibility: List[str] = Field(default_factory=list)
 
 
 class DiscoverySlotCreate(BaseModel):
@@ -36,3 +38,4 @@ class DiscoverySlotCreate(BaseModel):
     available_times: List[datetime]
     description: str
     tags: List[str] = Field(default_factory=list)
+    accessibility: List[str] = Field(default_factory=list)

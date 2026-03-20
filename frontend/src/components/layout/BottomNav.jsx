@@ -42,6 +42,16 @@ const ExploreIcon = ({ active }) => (
   </svg>
 );
 
+const PlannerIcon = ({ active }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="5" width="16" height="15" rx="3" stroke="currentColor" strokeWidth="1.6"
+      fill={active ? 'currentColor' : 'none'} fillOpacity={active ? 0.1 : 0} />
+    <line x1="8" y1="3.8" x2="8" y2="7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <line x1="16" y1="3.8" x2="16" y2="7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <line x1="7" y1="11" x2="17" y2="11" stroke="currentColor" strokeWidth="1.3" />
+  </svg>
+);
+
 const CreateIcon = ({ active }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <motion.rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="1.6"
@@ -74,11 +84,12 @@ const ProfileIcon = ({ active }) => (
 
 /* ── Tab config ── */
 const tabs = [
-  { path: '/', icon: DriftIcon, label: 'Drift' },
-  { path: '/bubble', icon: BubbleIcon, label: 'Bubble' },
+  { path: '/', icon: DriftIcon, label: 'Home' },
   { path: '/explore', icon: ExploreIcon, label: 'Explore' },
-  { path: '/create', icon: CreateIcon, label: 'Create' },
+  { path: '/planner', icon: PlannerIcon, label: 'Planner' },
+  { path: '/bubble', icon: BubbleIcon, label: 'Bubble' },
   { path: '/history', icon: HistoryIcon, label: 'History' },
+  { path: '/create', icon: CreateIcon, label: 'Create' },
   { path: '/profile', icon: ProfileIcon, label: 'Profile' },
 ];
 
@@ -117,71 +128,97 @@ export default function BottomNav() {
   if (location.pathname === '/onboarding') return null;
 
   return (
-    <nav className="bottom-nav" ref={navRef}>
-      {/* Glass background layer */}
-      <div className="bottom-nav__glass" />
+    <>
+      <header className="top-nav" aria-label="Primary">
+        <div className="top-nav__brand">
+          <div className="top-nav__brand-mark">✦</div>
+          <div>
+            <p className="top-nav__brand-title">Karm AI</p>
+            <p className="top-nav__brand-sub">Structured Serendipity Engine</p>
+          </div>
+        </div>
 
-      {/* Animated sliding pill behind active tab */}
-      <motion.div
-        className="bottom-nav__pill"
-        animate={{
-          left: pillStyle.left,
-          width: pillStyle.width,
-        }}
-        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-      />
+        <div className="top-nav__tabs">
+          {tabs.map((tab) => {
+            const isActive = location.pathname === tab.path;
+            const Icon = tab.icon;
+            return (
+              <NavLink
+                key={`top-${tab.path}`}
+                to={tab.path}
+                className={`top-nav__tab ${isActive ? 'top-nav__tab--active' : ''}`}
+                onClick={haptic}
+              >
+                <Icon active={isActive} />
+                <span>{tab.label}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+      </header>
 
-      {tabs.map((tab) => {
-        const isActive = location.pathname === tab.path;
-        const Icon = tab.icon;
+      <nav className="bottom-nav" ref={navRef}>
+        <div className="bottom-nav__glass" />
+        <motion.div
+          className="bottom-nav__pill"
+          animate={{
+            left: pillStyle.left,
+            width: pillStyle.width,
+          }}
+          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+        />
 
-        return (
-          <NavLink
-            key={tab.path}
-            to={tab.path}
-            ref={(el) => { tabRefs.current[tab.path] = el; }}
-            className={`bottom-nav__tab ${isActive ? 'bottom-nav__tab--active' : ''}`}
-            onClick={haptic}
-          >
-            <motion.div
-              className="bottom-nav__icon-wrap"
-              animate={{
-                scale: isActive ? 1 : 0.85,
-                y: isActive ? -2 : 0,
-              }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        {tabs.map((tab) => {
+          const isActive = location.pathname === tab.path;
+          const Icon = tab.icon;
+
+          return (
+            <NavLink
+              key={tab.path}
+              to={tab.path}
+              ref={(el) => { tabRefs.current[tab.path] = el; }}
+              className={`bottom-nav__tab ${isActive ? 'bottom-nav__tab--active' : ''}`}
+              onClick={haptic}
             >
-              <Icon active={isActive} />
-            </motion.div>
-
-            <AnimatePresence mode="wait">
-              {isActive && (
-                <motion.span
-                  className="bottom-nav__label"
-                  initial={{ opacity: 0, y: 4, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 4, scale: 0.8 }}
-                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                >
-                  {tab.label}
-                </motion.span>
-              )}
-            </AnimatePresence>
-
-            {/* Active glow effect */}
-            {isActive && (
               <motion.div
-                className="bottom-nav__glow"
-                layoutId="nav-glow"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-            )}
-          </NavLink>
-        );
-      })}
-    </nav>
+                className="bottom-nav__icon-wrap"
+                animate={{
+                  scale: isActive ? 1 : 0.88,
+                  y: isActive ? -2 : 0,
+                }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <Icon active={isActive} />
+              </motion.div>
+
+              <AnimatePresence mode="wait">
+                {isActive && (
+                  <motion.span
+                    className="bottom-nav__label"
+                    initial={{ opacity: 0, y: 4, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.8 }}
+                    transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                  >
+                    {tab.label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+
+              {isActive && (
+                <motion.div
+                  className="bottom-nav__glow"
+                  layoutId="nav-glow"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                />
+              )}
+            </NavLink>
+          );
+        })}
+      </nav>
+    </>
   );
 }

@@ -45,9 +45,7 @@ async def create_profile(req: StudentProfileCreate):
         axes=FingerprintAxes(),
         total_drifts=0,
         meaningful_drifts=0,
-        meaningful_rate=0.0,
-        best_drift_type=None,
-        best_time_of_day=None
+        meaningful_rate=0.0
     )
 
     db.student_drifts[student_id] = []

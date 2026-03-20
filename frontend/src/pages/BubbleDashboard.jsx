@@ -13,15 +13,27 @@ import './BubbleDashboard.css';
 
 export default function BubbleDashboard() {
   const navigate = useNavigate();
-  const { attractor, fetchBubble, fetchUnexplored, showToast } = useDriftStore();
+  const { attractor, fetchBubble, fetchUnexplored, showToast, feedbackMetrics } = useDriftStore();
   const [unexploredAreas, setUnexploredAreas] = useState(UNEXPLORED_AREAS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pageError, setPageError] = useState(null);
   const bubblePercent = attractor?.bubble_percentage || 23;
   const { value: countValue } = useCountUp(bubblePercent, 1200);
 
   useEffect(() => {
-    fetchBubble();
-    fetchUnexplored().then((areas) => {
-      if (areas && areas.length > 0) setUnexploredAreas(areas);
+    setIsLoading(true);
+    setPageError(null);
+    Promise.allSettled([fetchBubble(), fetchUnexplored()]).then((results) => {
+      const [, unexploredResult] = results;
+      if (unexploredResult.status === 'fulfilled') {
+        const areas = unexploredResult.value;
+        if (areas && areas.length > 0) {
+          setUnexploredAreas(areas);
+        }
+      } else {
+        setPageError('Unable to load live bubble analytics. Showing cached values.');
+      }
+      setIsLoading(false);
     });
   }, []);
 
@@ -56,7 +68,7 @@ export default function BubbleDashboard() {
   };
 
   return (
-    <div className="bubble-page">
+    <div className="bubble-page page-shell">
       {/* Header */}
       <div className="bubble-header">
         <div>
@@ -67,6 +79,21 @@ export default function BubbleDashboard() {
           What am I missing?
         </button>
       </div>
+
+      {pageError && (
+        <Card className="state-card" style={{ marginBottom: 16 }}>
+          <strong>Using fallback bubble metrics.</strong>
+          <p style={{ marginTop: 8 }}>{pageError}</p>
+        </Card>
+      )}
+
+      {isLoading && (
+        <div aria-live="polite" aria-busy="true" style={{ marginBottom: 18 }}>
+          <div className="skeleton" style={{ height: 260, marginBottom: 12 }} />
+          <div className="skeleton" style={{ height: 200, marginBottom: 12 }} />
+          <div className="skeleton" style={{ height: 160 }} />
+        </div>
+      )}
 
       {/* Bubble SVG Visualization */}
       <motion.div
@@ -201,6 +228,19 @@ export default function BubbleDashboard() {
         <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(123,97,255,0.05)', borderRadius: 8, fontSize: 11, color: 'var(--text-muted)' }}>
           🧠 Karm AI uses ε-greedy exploration (20% random) + MAB to ensure you always discover new areas, even when the algorithm learns your preferences.
         </div>
+
+        {feedbackMetrics && (
+          <div style={{ marginTop: 10, padding: '10px 12px', background: 'rgba(0, 229, 204, 0.08)', border: '1px solid rgba(0, 229, 204, 0.22)', borderRadius: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+              📈 Measured Impact (Last Logged Drift)
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              <div>Diversity score: {feedbackMetrics.diversity_score_before}% → {feedbackMetrics.diversity_score_after}% ({feedbackMetrics.diversity_delta >= 0 ? '+' : ''}{feedbackMetrics.diversity_delta})</div>
+              <div>Campus coverage: {feedbackMetrics.bubble_before}% → {feedbackMetrics.bubble_after}% ({feedbackMetrics.bubble_delta >= 0 ? '+' : ''}{feedbackMetrics.bubble_delta})</div>
+              <div>Recommendation shift: {feedbackMetrics.recommendation_shift.best_drift_type_before} → {feedbackMetrics.recommendation_shift.best_drift_type_after}</div>
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Unexplored Areas */}

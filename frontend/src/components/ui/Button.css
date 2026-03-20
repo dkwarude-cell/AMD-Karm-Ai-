@@ -3,15 +3,15 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 52px;
-  padding: 0 32px;
+  min-height: 48px;
+  padding: 0 24px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition: all var(--transition-fast);
-  border: none;
+  border: 1px solid transparent;
   outline: none;
   white-space: nowrap;
   user-select: none;
@@ -29,45 +29,64 @@
 
 /* Primary */
 .drift-btn--primary {
-  background: var(--accent-primary);
+  background: var(--gradient-cta);
   color: white;
-  box-shadow: 0 0 20px rgba(123, 97, 255, 0.3);
+  box-shadow: 0 14px 26px rgba(63, 78, 170, 0.26);
 }
 
 .drift-btn--primary:hover:not(:disabled) {
-  filter: brightness(1.1);
-  transform: scale(1.02);
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px rgba(63, 78, 170, 0.32);
 }
 
 .drift-btn--primary:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: translateY(1px);
 }
 
 /* Secondary */
 .drift-btn--secondary {
-  background: transparent;
+  background: var(--glass-bg);
   border: var(--border-active);
-  color: var(--accent-primary);
+  color: var(--text-accent);
+  backdrop-filter: var(--glass-blur);
 }
 
 .drift-btn--secondary:hover:not(:disabled) {
-  background: rgba(123, 97, 255, 0.08);
-  transform: scale(1.02);
+  background: rgba(91, 92, 230, 0.12);
+  transform: translateY(-1px);
 }
 
 .drift-btn--secondary:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: translateY(1px);
+}
+
+/* Outline (alias used by planner actions) */
+.drift-btn--outline {
+  background: transparent;
+  border: var(--border-soft);
+  color: var(--text-primary);
+}
+
+.drift-btn--outline:hover:not(:disabled) {
+  border: var(--border-active);
+  background: rgba(91, 92, 230, 0.05);
 }
 
 /* Ghost */
 .drift-btn--ghost {
   background: transparent;
   color: var(--text-secondary);
-  border: none;
+  border-color: transparent;
   height: auto;
   padding: 8px 16px;
 }
 
 .drift-btn--ghost:hover:not(:disabled) {
   color: var(--text-primary);
+  background: rgba(81, 96, 121, 0.08);
+}
+
+.drift-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-secondary) 68%, white 32%);
+  outline-offset: 2px;
 }

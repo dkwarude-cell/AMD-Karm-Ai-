@@ -26,7 +26,8 @@ async def create_slot(req: DiscoverySlotCreate):
         location=req.location,
         available_times=req.available_times,
         description=req.description,
-        tags=req.tags or []
+        tags=req.tags or [],
+        accessibility=req.accessibility or []
     )
     db.discovery_slots.append(slot)
     return slot

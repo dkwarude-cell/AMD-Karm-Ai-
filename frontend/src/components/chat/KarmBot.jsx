@@ -84,6 +84,16 @@ export default function KarmBot() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    const onEscape = (e) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, []);
+
   const handleSend = async (text) => {
     const query = text || input.trim();
     if (!query || loading) return;
@@ -143,6 +153,7 @@ export default function KarmBot() {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', damping: 20 }}
             title="KarmBot — AI Campus Assistant"
+            aria-label="Open KarmBot assistant"
           >
             <KarmLogo size={30} className="karmbot-fab-logo" />
           </motion.button>
@@ -165,7 +176,7 @@ export default function KarmBot() {
                 <KarmLogo size={22} /> KarmBot
                 <span className="karmbot-header__badge">AI</span>
               </div>
-              <button className="karmbot-header__close" onClick={() => setOpen(false)}>✕</button>
+              <button className="karmbot-header__close" onClick={() => setOpen(false)} aria-label="Close KarmBot assistant">✕</button>
             </div>
 
             <div className="karmbot-messages" ref={scrollRef}>

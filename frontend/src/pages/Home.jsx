@@ -31,11 +31,16 @@ export default function Home() {
 
   const [acceptAnimating, setAcceptAnimating] = useState(false);
   const [floatingScore, setFloatingScore] = useState(false);
+  const [pageError, setPageError] = useState(null);
 
   // Fetch drift + bubble on mount
   useEffect(() => {
-    fetchDrift();
-    fetchBubble();
+    Promise.allSettled([fetchDrift(), fetchBubble()]).then((results) => {
+      const anyRejected = results.some((r) => r.status === 'rejected');
+      if (anyRejected) {
+        setPageError('Some live data could not be loaded. Showing cached recommendations.');
+      }
+    });
   }, []);
 
   const handleAccept = () => {
@@ -64,7 +69,7 @@ export default function Home() {
   const driftSkipped = todaysDrift?.status === 'skipped';
 
   return (
-    <div className="home-page">
+    <div className="home-page page-shell">
       {/* Toast notification */}
       <AnimatePresence>
         {toastMessage && (
@@ -90,14 +95,37 @@ export default function Home() {
             ⬡ {attractor?.bubble_percentage}% explored 🔴
           </a>
         </div>
-        <div className="home-topbar__avatar" style={{
+        <button className="home-topbar__avatar" onClick={() => navigate('/profile')} aria-label="Go to profile" style={{
           borderWidth: Math.min(student?.drift_streak || 1, 4) + 'px'
         }}>
           {student?.name?.split(' ').map(n => n[0]).join('').slice(0, 2)}
-        </div>
+        </button>
       </div>
 
+      {pageError && (
+        <Card className="state-card" style={{ marginBottom: 18 }}>
+          <strong>Using fallback data.</strong>
+          <p style={{ marginTop: 8 }}>{pageError}</p>
+        </Card>
+      )}
+
+      {loading && (
+        <div aria-live="polite" aria-busy="true" style={{ marginBottom: 16 }}>
+          <div className="skeleton" style={{ height: 320, width: '100%', marginBottom: 12 }} />
+          <div className="skeleton" style={{ height: 130, width: '100%' }} />
+        </div>
+      )}
+
+      {!loading && !todaysDrift && (
+        <Card className="state-card" style={{ marginBottom: 18 }}>
+          <strong>No drift available yet.</strong>
+          <p style={{ marginTop: 8, marginBottom: 10 }}>Try refreshing and we will generate a new recommendation.</p>
+          <Button variant="secondary" onClick={() => fetchDrift()}>Refresh Drift</Button>
+        </Card>
+      )}
+
       {/* Hero Drift Card */}
+      {todaysDrift && (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -198,6 +226,7 @@ export default function Home() {
           </AnimatePresence>
         </Card>
       </motion.div>
+      )}
 
       {/* Secondary Cards */}
       <div className="home-secondary-cards">

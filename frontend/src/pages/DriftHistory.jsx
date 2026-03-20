@@ -46,7 +46,7 @@ export default function DriftHistory() {
   ).length;
 
   return (
-    <div className="history-page">
+    <div className="history-page page-shell">
       {/* Toast notification */}
       <AnimatePresence>
         {toastMessage && (

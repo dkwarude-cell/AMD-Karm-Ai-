@@ -29,6 +29,7 @@ const useDriftStore = create(
       toastMessage: null,
       onboarded: false,
       loading: false,
+      feedbackMetrics: null,
 
       // Actions
       setStudent: (profile) => set({ student: profile }),
@@ -170,7 +171,10 @@ const useDriftStore = create(
         setTimeout(() => set({ toastMessage: null }), 3000);
 
         try {
-          await logDriftOutcome(driftId, wasInteresting, description, state.student.id);
+          const res = await logDriftOutcome(driftId, wasInteresting, description, state.student.id);
+          if (res?.data?.feedback_metrics) {
+            set({ feedbackMetrics: res.data.feedback_metrics });
+          }
         } catch (err) {
           console.warn('Outcome API failed:', err.message);
         }
@@ -191,6 +195,7 @@ const useDriftStore = create(
         attractor: state.attractor,
         driftHistory: state.driftHistory,
         fingerprint: state.fingerprint,
+        feedbackMetrics: state.feedbackMetrics,
         onboarded: state.onboarded,
       }),
     }
